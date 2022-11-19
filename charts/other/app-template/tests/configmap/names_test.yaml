@@ -44,16 +44,16 @@ tests:
     asserts:
       - hasDocuments:
           count: 4
-      - documentIndex: 0
+      - documentIndex: &FirstConfigmapDocument 2
         isKind:
           of: ConfigMap
-      - documentIndex: 0
+      - documentIndex: *FirstConfigmapDocument
         isNotNull:
           path: metadata.name
-      - documentIndex: 1
+      - documentIndex: &SecondConfigmapDocument 3
         isKind:
           of: ConfigMap
-      - documentIndex: 1
+      - documentIndex: *SecondConfigmapDocument
         isNotNull:
           path: metadata.name
 
@@ -65,10 +65,10 @@ tests:
     asserts:
       - hasDocuments:
           count: 3
-      - documentIndex: 0
+      - documentIndex: &ConfigmapDocument 2
         isKind:
           of: ConfigMap
-      - documentIndex: 0
+      - documentIndex: *ConfigmapDocument
         equal:
           path: metadata.name
           value: RELEASE-NAME-config
@@ -82,10 +82,10 @@ tests:
     asserts:
       - hasDocuments:
           count: 3
-      - documentIndex: 0
+      - documentIndex: &ConfigmapDocument 2
         isKind:
           of: ConfigMap
-      - documentIndex: 0
+      - documentIndex: *ConfigmapDocument
         equal:
           path: metadata.name
           value: RELEASE-NAME-http
