@@ -6,45 +6,39 @@ templates:
 values:
   - ../_values/controllers_main_default_container.yaml
 tests:
-  - it: default should pass
+  - it: an HTTPRoute is not created by default
     asserts:
-      - hasDocuments:
-          count: 1
-      - documentIndex: 0
-        not: true
-        isKind:
-          of: HTTPRoute
+      - not: true
+        containsDocument:
+          kind: HTTPRoute
+          apiVersion: gateway.networking.k8s.io/v1alpha2
+          name: RELEASE-NAME
 
-  - it: explicitly disabled should pass
+  - it: an HTTPRoute is not created when disabled
     set:
       route.main.enabled: false
     asserts:
-      - hasDocuments:
-          count: 1
-      - documentIndex: 0
-        not: true
-        isKind:
-          of: HTTPRoute
+      - not: true
+        containsDocument:
+          kind: HTTPRoute
+          apiVersion: gateway.networking.k8s.io/v1alpha2
+          name: RELEASE-NAME
 
-  - it: explicitly enabled should pass
+  - it: an HTTPRoute is created when explicitly enabled
     set:
       route.main:
         enabled: true
         parentRefs:
           - name: test
             namespace: test
+    documentSelector:
+      path: $[?(@.kind == "HTTPRoute")].metadata.name
+      value: RELEASE-NAME
     asserts:
-      - hasDocuments:
-          count: 2
-      - documentIndex: 0
-        not: true
-        isKind:
-          of: HTTPRoute
-      - documentIndex: 1
-        isKind:
-          of: HTTPRoute
+      - exists:
+          path: metadata.name
 
-  - it: multiple enabled should pass
+  - it: multiple HTTPRoute are created when configured
     set:
       route:
         main:
@@ -56,15 +50,13 @@ tests:
             - name: test
               namespace: test
     asserts:
-      - hasDocuments:
-          count: 3
-      - documentIndex: 0
-        not: true
-        isKind:
-          of: HTTPRoute
-      - documentIndex: 1
-        isKind:
-          of: HTTPRoute
-      - documentIndex: 2
-        isKind:
-          of: HTTPRoute
+      - documentSelector:
+          path: $[?(@.kind == "HTTPRoute")].metadata.name
+          value: RELEASE-NAME-main
+        exists:
+          path: metadata.name
+      - documentSelector:
+          path: $[?(@.kind == "HTTPRoute")].metadata.name
+          value: RELEASE-NAME-test
+        exists:
+          path: metadata.name
